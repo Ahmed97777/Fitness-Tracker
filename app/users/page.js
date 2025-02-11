@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 
-import DeleteUserModal from "@/components/DeleteUserModal";
-import EditUserModal from "@/components/EditUserModal";
+import DeleteUserModal from "@/components/UsersModal/DeleteUserModal";
+import EditUserModal from "@/components/UsersModal/EditUserModal";
 import { handleGetUsers } from "@/handle-data/userHandlers";
 
 const page = () => {

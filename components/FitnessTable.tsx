@@ -1,4 +1,28 @@
-const FitnessTable = ({ fitnessData, setEditData, setRecordToDelete }) => {
+import { FC } from "react";
+
+interface FitnessData {
+  id?: string;
+  date: string;
+  name: string;
+  pushUp: number;
+  plank: number;
+  squat: number;
+  abs: number;
+}
+
+// Step 2: Define props interface for type safety
+interface FitnessTableProps {
+  fitnessData: FitnessData[];
+  setEditData: React.Dispatch<React.SetStateAction<FitnessData | null>>;
+  setRecordToDelete: React.Dispatch<React.SetStateAction<FitnessData | null>>;
+}
+
+// Step 3: Add FC type and generic type parameter
+const FitnessTable: FC<FitnessTableProps> = ({
+  fitnessData,
+  setEditData,
+  setRecordToDelete,
+}) => {
   return (
     <table className="table table-zebra w-full">
       <thead>
@@ -15,7 +39,9 @@ const FitnessTable = ({ fitnessData, setEditData, setRecordToDelete }) => {
       </thead>
       <tbody>
         {fitnessData
-          .sort((a, b) => new Date(a.date) - new Date(b.date))
+          .sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+          )
           .map((data, index) => (
             <tr key={data.id}>
               <th>{index + 1}</th>
@@ -30,7 +56,9 @@ const FitnessTable = ({ fitnessData, setEditData, setRecordToDelete }) => {
                   className="btn btn-warning btn-xs"
                   onClick={() => {
                     setEditData(data);
-                    document.getElementById("editModal").showModal();
+                    (
+                      document.getElementById("editModal") as HTMLDialogElement
+                    )?.showModal();
                   }}
                 >
                   Edit
@@ -39,7 +67,11 @@ const FitnessTable = ({ fitnessData, setEditData, setRecordToDelete }) => {
                   className="btn btn-error btn-xs"
                   onClick={() => {
                     setRecordToDelete(data);
-                    document.getElementById("deleteModal").showModal();
+                    (
+                      document.getElementById(
+                        "deleteModal"
+                      ) as HTMLDialogElement
+                    )?.showModal();
                   }}
                 >
                   Delete

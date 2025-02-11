@@ -1,4 +1,21 @@
-const AddFormItem = ({
+import { FC } from "react";
+
+interface UserData {
+  name: string;
+}
+
+interface AddFormItemProps {
+  users?: UserData[];
+  type?: "date" | "";
+  htmlFor: string;
+  label: string;
+  value: string | number;
+  handleChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
+}
+
+const AddFormItem: FC<AddFormItemProps> = ({
   type = "",
   htmlFor,
   label,
@@ -6,13 +23,19 @@ const AddFormItem = ({
   handleChange,
   users = [],
 }) => {
+  const handleDateClick = (e: React.MouseEvent<HTMLInputElement>) => {
+    const inputElement = e.target as HTMLInputElement;
+    if (inputElement.type === "date") {
+      inputElement.showPicker();
+    }
+  };
+
   if (htmlFor === "name") {
     return (
       <div className="form-control">
         <label className="label" htmlFor={htmlFor}>
           <span className="label-text">{label}</span>
         </label>
-
         <select
           id={htmlFor}
           name={htmlFor}
@@ -21,7 +44,7 @@ const AddFormItem = ({
           required
           className="input input-bordered w-full"
         >
-          <option value="">Choose name 🔽</option>
+          <option value="">Select Name ⬇️</option>
           {users.map((user) => (
             <option key={user.name} value={user.name}>
               {user.name}
@@ -37,7 +60,6 @@ const AddFormItem = ({
       <label className="label" htmlFor={htmlFor}>
         <span className="label-text">{label}</span>
       </label>
-
       <input
         type={type}
         id={htmlFor}
@@ -46,6 +68,7 @@ const AddFormItem = ({
         onChange={handleChange}
         required
         className="input input-bordered w-full"
+        onClick={type === "date" ? handleDateClick : undefined}
       />
     </div>
   );

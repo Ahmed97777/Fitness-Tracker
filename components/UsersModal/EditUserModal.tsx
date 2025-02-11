@@ -1,21 +1,32 @@
-import { useState } from "react";
 import { handleEditUsers } from "@/handle-data/userHandlers";
+import { useState, useEffect } from "react";
 
-const EditUserModal = ({ editData, setEditData, setUsersData }) => {
-  const [editLoading, setEditLoading] = useState(false);
+interface User {
+  id?: string;
+  name: string;
+}
+
+interface EditUserModalProps {
+  editData: User | null;
+  setEditData: React.Dispatch<React.SetStateAction<User | null>>;
+  setUsersData: React.Dispatch<React.SetStateAction<User[]>>;
+}
+
+const EditUserModal: React.FC<EditUserModalProps> = ({
+  editData,
+  setEditData,
+  setUsersData,
+}) => {
+  const [editLoading, setEditLoading] = useState<boolean>(false);
 
   const handleEditClick = async () => {
-    await handleEditUsers({
-      editData,
-      setEditLoading,
-      setUsersData,
-    });
+    await handleEditUsers({ editData, setUsersData, setEditLoading });
   };
 
   return (
     <dialog id="editModal" className="modal">
       <div className="modal-box">
-        <h3 className="font-bold text-lg">Edit User Data</h3>
+        <h3 className="font-bold text-lg">Edit Fitness Data</h3>
         <div className="py-4">
           <form
             onSubmit={(e) => {
@@ -28,8 +39,8 @@ const EditUserModal = ({ editData, setEditData, setUsersData }) => {
               <input
                 type="text"
                 value={editData?.name || ""}
-                onChange={(e) =>
-                  setEditData({ ...editData, name: e.target.value })
+                onChange={
+                  (e) => setEditData({ ...editData, name: e.target.value }) // Ensures editData is updated as a full User object
                 }
                 className="input input-bordered w-full"
               />
@@ -46,7 +57,7 @@ const EditUserModal = ({ editData, setEditData, setUsersData }) => {
                 {editLoading ? (
                   <span className="loading loading-spinner loading-lg"></span>
                 ) : (
-                  "Update data"
+                  "Update Data"
                 )}
               </button>
 
@@ -54,7 +65,9 @@ const EditUserModal = ({ editData, setEditData, setUsersData }) => {
                 type="button"
                 className="btn"
                 onClick={() => {
-                  document.getElementById("editModal").close();
+                  (
+                    document.getElementById("editModal") as HTMLDialogElement
+                  )?.close();
                 }}
               >
                 Cancel

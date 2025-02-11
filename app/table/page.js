@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 
-import DeleteFitnessModal from "@/components/DeleteFitnessModal";
-import EditFitnessModal from "@/components/EditFitnessModal";
+import DeleteFitnessModal from "@/components/FitnessModal/DeleteFitnessModal";
+import EditFitnessModal from "@/components/FitnessModal/EditFitnessModal";
 import FitnessTable from "@/components/FitnessTable";
 import { handleGet } from "@/handle-data/fitnessHandlers";
 

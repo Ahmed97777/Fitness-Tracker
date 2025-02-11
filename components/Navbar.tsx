@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-function Navbar() {
+const Navbar = () => {
   return (
     <div className="navbar bg-base-100">
       <div className="navbar-start">
@@ -26,42 +26,58 @@ function Navbar() {
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
           >
             <li>
-              <Link href="/">Add progress</Link>
+              <Link href="/dashboard">
+                <div className="text-base tracking-wide">Dashboard</div>
+              </Link>
             </li>
             <li>
-              <Link href="/dashboard">Dashboard</Link>
+              <Link href="/">
+                <div className="text-base tracking-wide">Add progress</div>
+              </Link>
             </li>
             <li>
-              <Link href="/table">Table</Link>
+              <Link href="/table">
+                <div className="text-base tracking-wide">Table</div>
+              </Link>
             </li>
             <li>
-              <Link href="/add-users">Add User</Link>
+              <Link href="/add-users">
+                <div className="text-base tracking-wide">Add New User</div>
+              </Link>
             </li>
           </ul>
         </div>
-        <Link href="/" className="btn btn-ghost text-xl">
-          Fitness Tracker
+        <Link href="/">
+          <div className="btn btn-ghost text-xl">Fitness Tracker</div>
         </Link>
       </div>
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1 text-lg">
+        <ul className="menu menu-horizontal px-1">
           <li>
-            <Link href="/">Add progress</Link>
+            <Link href="/dashboard">
+              <div className="text-lg tracking-wide">Dashboard</div>
+            </Link>
           </li>
           <li>
-            <Link href="/dashboard">Dashboard</Link>
+            <Link href="/">
+              <div className="text-lg tracking-wide">Add progress</div>
+            </Link>
           </li>
           <li>
-            <Link href="/table">Table</Link>
+            <Link href="/table">
+              <div className="text-lg tracking-wide">Table</div>
+            </Link>
           </li>
           <li>
-            <Link href="/add-users">Add User</Link>
+            <Link href="/add-users">
+              <div className="text-lg tracking-wide">Add New User</div>
+            </Link>
           </li>
         </ul>
       </div>
-      <div className="navbar-end">{/* <a className="btn">Button</a> */}</div>
+      <div className="navbar-end">{/* <a class="btn">Button</a> */}</div>
     </div>
   );
-}
+};
 
 export default Navbar;
