@@ -1,33 +1,52 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import AddFormItem from "@/components/AddFormItem";
+import { useState, useEffect } from "react";
 import { handleAdd } from "@/handle-data/fitnessHandlers";
 import { handleGetUsersForForm } from "@/handle-data/userHandlers";
+import AddFormItem from "@/components/AddFormItem";
+
+interface FitnessFormData {
+  id?: string;
+  date: string;
+  name: string;
+  pushUp: number;
+  plank: number;
+  squat: number;
+  abs: number;
+}
+
+interface User {
+  id?: string;
+  name: string;
+}
 
 export default function Home() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    date: "",
+  const newDate = new Date().toISOString().substring(0, 10);
+
+  const [formData, setFormData] = useState<FitnessFormData>({
+    date: newDate,
     name: "",
-    pushUp: "",
-    plank: "",
-    squat: "",
+    pushUp: 0,
+    plank: 0,
+    squat: 0,
     abs: 0,
   });
+
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
       await handleGetUsersForForm({ setUsers });
     };
-
     fetchUsers();
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
+
     setFormData({
       ...formData,
       [name]: ["pushUp", "plank", "squat", "abs"].includes(name)
@@ -36,18 +55,16 @@ export default function Home() {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     await handleAdd({ e, formData, setFormData, setLoading });
   };
 
   return (
-    <div className="max-w-lg mx-auto my-8 p-4">
-      <div className="flex justify-between">
-        <h2 className="text-3xl font-semibold text-center mb-6">
-          Add Fitness Progress
-        </h2>
-      </div>
-
+    <div className="max-w-lg mx-auto mt-8 p-4">
+      <h2 className="text-3xl font-semibold text-center mb-6">
+        Add Fitness Data
+      </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <AddFormItem
           type="date"
@@ -74,7 +91,7 @@ export default function Home() {
 
         <AddFormItem
           htmlFor="plank"
-          label="Plank"
+          label="Plank (Seconds)"
           value={formData.plank}
           handleChange={handleChange}
         />
@@ -93,11 +110,11 @@ export default function Home() {
           handleChange={handleChange}
         />
 
-        <button type="submit" disabled={loading} className="btn w-full mt-4">
+        <button type="submit" disabled={loading} className={`btn w-full mt-4`}>
           {loading ? (
             <span className="loading loading-spinner loading-lg"></span>
           ) : (
-            "Add Progress"
+            "Add Fitness Data"
           )}
         </button>
       </form>

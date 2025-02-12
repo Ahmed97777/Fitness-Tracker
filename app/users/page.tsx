@@ -1,16 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
+import { handleGetUsers } from "@/handle-data/userHandlers";
 import DeleteUserModal from "@/components/UsersModal/DeleteUserModal";
 import EditUserModal from "@/components/UsersModal/EditUserModal";
-import { handleGetUsers } from "@/handle-data/userHandlers";
 
-const page = () => {
-  const [usersData, setUsersData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [recordToDelete, setRecordToDelete] = useState(null);
-  const [editData, setEditData] = useState(null);
+interface User {
+  id?: string;
+  name: string;
+}
+
+const Page = () => {
+  const [usersData, setUsersData] = useState<User[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [recordToDelete, setRecordToDelete] = useState<User | null>(null);
+  const [editData, setEditData] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchUsersData = async () => {
@@ -34,7 +38,9 @@ const page = () => {
         {usersData.length < 1 ? (
           <div className="flex justify-center items-center">
             <div className="label bg-slate-300 shadow-lg rounded-lg px-3">
-              <span>No data available. Please add users first</span>
+              <div>
+                <span>No data available. Please add some users.</span>
+              </div>
             </div>
           </div>
         ) : (
@@ -56,7 +62,11 @@ const page = () => {
                       className="btn btn-warning btn-xs"
                       onClick={() => {
                         setEditData(data);
-                        document.getElementById("editModal").showModal();
+                        (
+                          document.getElementById(
+                            "editModal"
+                          ) as HTMLDialogElement
+                        )?.showModal();
                       }}
                     >
                       Edit
@@ -65,7 +75,11 @@ const page = () => {
                       className="btn btn-error btn-xs"
                       onClick={() => {
                         setRecordToDelete(data);
-                        document.getElementById("deleteModal").showModal();
+                        (
+                          document.getElementById(
+                            "deleteModal"
+                          ) as HTMLDialogElement
+                        )?.showModal();
                       }}
                     >
                       Delete
@@ -93,4 +107,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

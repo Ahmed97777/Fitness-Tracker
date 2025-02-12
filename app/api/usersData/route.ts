@@ -2,11 +2,10 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// get request
-export async function GET() {
+export async function GET(): Promise<Response> {
   try {
     const usersData = await prisma.users.findMany();
-    console.log("succeeded");
+    console.log("Succeeded");
     return new Response(JSON.stringify(usersData), { status: 200 });
   } catch (error) {
     console.error("Error fetching users data:", error);
@@ -17,12 +16,15 @@ export async function GET() {
   }
 }
 
-// post request
-export async function POST(req) {
-  try {
-    const { name } = await req.json();
+interface UserDataCreateRequest {
+  name: string;
+}
 
-    // validate data before inserting
+export async function POST(req: Request): Promise<Response> {
+  try {
+    const { name }: UserDataCreateRequest = await req.json();
+
+    // Validate data before inserting
     if (!name) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
@@ -35,7 +37,7 @@ export async function POST(req) {
         name,
       },
     });
-    return new Response(JSON.stringify({ newUserData }), { status: 201 });
+    return new Response(JSON.stringify(newUserData), { status: 201 });
   } catch (error) {
     console.error("Error creating user data:", error);
     return new Response(JSON.stringify({ error: "Error creating user data" }), {
@@ -44,12 +46,15 @@ export async function POST(req) {
   }
 }
 
-// Put request
-export async function PUT(req) {
-  try {
-    const { id, name } = await req.json();
+interface UserDataUpdateRequest extends UserDataCreateRequest {
+  id: number;
+}
 
-    // validate data before inserting
+export async function PUT(req: Request): Promise<Response> {
+  try {
+    const { id, name }: UserDataUpdateRequest = await req.json();
+
+    // Validate data before updating
     if (!id || !name) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
@@ -57,15 +62,12 @@ export async function PUT(req) {
       );
     }
 
-    const updatedUserData = await prisma.users.update({
+    const updatedUsersData = await prisma.users.update({
       where: { id },
-      data: {
-        name,
-      },
+      data: { name },
     });
-    return new Response(JSON.stringify({ updatedUserData }), {
-      status: 200,
-    });
+
+    return new Response(JSON.stringify(updatedUsersData), { status: 200 });
   } catch (error) {
     console.error("Error updating users data:", error);
     return new Response(
@@ -75,12 +77,15 @@ export async function PUT(req) {
   }
 }
 
-// Delete request
-export async function DELETE(req) {
-  try {
-    const { id } = await req.json();
+interface UserDataDeleteRequest {
+  id: number;
+}
 
-    // validate data before inserting
+export async function DELETE(req: Request): Promise<Response> {
+  try {
+    const { id }: UserDataDeleteRequest = await req.json();
+
+    // Validate ID before deleting
     if (!id) {
       return new Response(
         JSON.stringify({ error: "Missing ID for deletion" }),
@@ -91,9 +96,7 @@ export async function DELETE(req) {
     await prisma.users.delete({
       where: { id },
     });
-    return new Response(null, {
-      status: 204,
-    });
+    return new Response(null, { status: 204 });
   } catch (error) {
     console.error("Error deleting users data:", error);
     return new Response(

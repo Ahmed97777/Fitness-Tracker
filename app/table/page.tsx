@@ -2,22 +2,33 @@
 
 import { useState, useEffect } from "react";
 
+import { handleGet } from "@/handle-data/fitnessHandlers";
+import FitnessTable from "@/components/FitnessTable";
 import DeleteFitnessModal from "@/components/FitnessModal/DeleteFitnessModal";
 import EditFitnessModal from "@/components/FitnessModal/EditFitnessModal";
-import FitnessTable from "@/components/FitnessTable";
-import { handleGet } from "@/handle-data/fitnessHandlers";
+
+interface FitnessData {
+  id?: string;
+  date: string;
+  name: string;
+  pushUp: number;
+  plank: number;
+  squat: number;
+  abs: number;
+}
 
 const page = () => {
-  const [fitnessData, setFitnessData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [recordToDelete, setRecordToDelete] = useState(null);
-  const [editData, setEditData] = useState(null);
+  const [fitnessData, setFitnessData] = useState<FitnessData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [recordToDelete, setRecordToDelete] = useState<FitnessData | null>(
+    null
+  );
+  const [editData, setEditData] = useState<FitnessData | null>(null);
 
   useEffect(() => {
     const fetchFitnessData = async () => {
       await handleGet({ setFitnessData, setLoading });
     };
-
     fetchFitnessData();
   }, []);
 
@@ -35,7 +46,9 @@ const page = () => {
         {fitnessData.length < 1 ? (
           <div className="flex justify-center items-center">
             <div className="label bg-slate-300 shadow-lg rounded-lg px-3">
-              <span>No data available. Please add some fitness records.</span>
+              <div>
+                <span>No data available. Please add some fitness records.</span>
+              </div>
             </div>
           </div>
         ) : (

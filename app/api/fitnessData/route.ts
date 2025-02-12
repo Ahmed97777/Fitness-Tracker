@@ -2,11 +2,29 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// get request
-export async function GET() {
+// Type definitions for incoming request bodies
+interface FitnessDataCreateRequest {
+  date: string;
+  name: string;
+  pushUp: number;
+  plank: number;
+  squat: number;
+  abs: number;
+}
+
+interface FitnessDataUpdateRequest extends FitnessDataCreateRequest {
+  id: number;
+}
+
+interface FitnessDataDeleteRequest {
+  id: number;
+}
+
+// GET method
+export async function GET(): Promise<Response> {
   try {
     const fitnessData = await prisma.fitnessData.findMany();
-    console.log("succeeded");
+    console.log("Succeeded");
     return new Response(JSON.stringify(fitnessData), { status: 200 });
   } catch (error) {
     console.error("Error fetching fitness data:", error);
@@ -17,12 +35,13 @@ export async function GET() {
   }
 }
 
-// post request
-export async function POST(req) {
+// POST method
+export async function POST(req: Request): Promise<Response> {
   try {
-    const { date, name, pushUp, plank, squat, abs } = await req.json();
+    const { date, name, pushUp, plank, squat, abs }: FitnessDataCreateRequest =
+      await req.json();
 
-    // validate data before inserting
+    // Validate data before inserting
     if (
       !date ||
       !name ||
@@ -47,7 +66,7 @@ export async function POST(req) {
         abs,
       },
     });
-    return new Response(JSON.stringify({ newFitnessData }), { status: 201 });
+    return new Response(JSON.stringify(newFitnessData), { status: 201 });
   } catch (error) {
     console.error("Error creating fitness data:", error);
     return new Response(
@@ -57,12 +76,20 @@ export async function POST(req) {
   }
 }
 
-// Put request
-export async function PUT(req) {
+// PUT method
+export async function PUT(req: Request): Promise<Response> {
   try {
-    const { id, date, name, pushUp, plank, squat, abs } = await req.json();
+    const {
+      id,
+      date,
+      name,
+      pushUp,
+      plank,
+      squat,
+      abs,
+    }: FitnessDataUpdateRequest = await req.json();
 
-    // validate data before inserting
+    // Validate data before updating
     if (
       !id ||
       !date ||
@@ -80,18 +107,10 @@ export async function PUT(req) {
 
     const updatedFitnessData = await prisma.fitnessData.update({
       where: { id },
-      data: {
-        date,
-        name,
-        pushUp,
-        plank,
-        squat,
-        abs,
-      },
+      data: { date, name, pushUp, plank, squat, abs },
     });
-    return new Response(JSON.stringify({ updatedFitnessData }), {
-      status: 200,
-    });
+
+    return new Response(JSON.stringify(updatedFitnessData), { status: 200 });
   } catch (error) {
     console.error("Error updating fitness data:", error);
     return new Response(
@@ -101,12 +120,12 @@ export async function PUT(req) {
   }
 }
 
-// Delete request
-export async function DELETE(req) {
+// DELETE method
+export async function DELETE(req: Request): Promise<Response> {
   try {
-    const { id } = await req.json();
+    const { id }: FitnessDataDeleteRequest = await req.json();
 
-    // validate data before inserting
+    // Validate ID before deleting
     if (!id) {
       return new Response(
         JSON.stringify({ error: "Missing ID for deletion" }),
@@ -117,9 +136,7 @@ export async function DELETE(req) {
     await prisma.fitnessData.delete({
       where: { id },
     });
-    return new Response(null, {
-      status: 204,
-    });
+    return new Response(null, { status: 204 });
   } catch (error) {
     console.error("Error deleting fitness data:", error);
     return new Response(
