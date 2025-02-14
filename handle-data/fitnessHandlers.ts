@@ -66,6 +66,8 @@ interface HandleAddProps {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+const users = ["Sameh", "Khorkhash", "Youssef"];
+
 export const handleAdd = async ({
   e,
   formData,
@@ -76,7 +78,40 @@ export const handleAdd = async ({
   setLoading(true);
 
   try {
+    // Fetch existing fitness data to get the latest date
     const res = await fetch("/api/fitnessData", {
+      method: "GET",
+    });
+    if (!res.ok) {
+      throw new Error("Failed to fetch fitness data");
+    }
+
+    const existingData: FitnessData[] = await res.json();
+
+    // Sort existing data by date (descending order) to get the latest date
+    const latestDate = existingData
+      .map((item) => new Date(item.date)) // Convert to Date object
+      .sort((a, b) => b.getTime() - a.getTime())
+      .shift()
+      ?.toISOString()
+      ?.substring(0, 10); // Get the latest date
+
+    if (!latestDate) {
+      throw new Error("No existing data found.");
+    }
+
+    // Check for missing dates between the latest date and the given date
+    const missingDates = getMissingDates(latestDate, formData.date);
+
+    // Insert default 0 data for each date with provided const users
+    for (const missingDate of missingDates) {
+      for (const user of users) {
+        await insertMissingData(missingDate, user);
+      }
+    }
+
+    // Insert the new fitness data for the given date
+    const newFitnessData = await fetch("/api/fitnessData", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -84,10 +119,14 @@ export const handleAdd = async ({
       body: JSON.stringify(formData),
     });
 
-    if (!res.ok) {
+    if (!newFitnessData.ok) {
       throw new Error("Failed to add fitness data");
     }
 
+    const newData = await newFitnessData.json();
+    toast.success("Fitness Data Added Successfully");
+
+    // Reset the form
     const newDate = new Date().toISOString().substring(0, 10);
     setFormData({
       date: newDate,
@@ -97,12 +136,51 @@ export const handleAdd = async ({
       squat: 0,
       abs: 0,
     });
-
-    toast.success("Fitness Data Added Successfully");
   } catch (error) {
     toast.error("Error adding fitness data");
   } finally {
     setLoading(false);
+  }
+};
+
+// Get missing dates between two dates
+const getMissingDates = (startDate: string, endDate: string): string[] => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const missingDates: string[] = [];
+
+  // Add one day at a time from start date to end date
+  while (start < end) {
+    start.setDate(start.getDate() + 1);
+    if (start.toISOString().substring(0, 10) !== endDate) {
+      missingDates.push(start.toISOString().substring(0, 10));
+    }
+  }
+
+  return missingDates;
+};
+
+// Insert missing fitness data for a given date and user
+const insertMissingData = async (date: string, user: string) => {
+  const defaultData = {
+    date,
+    name: user,
+    pushUp: 0,
+    plank: 0,
+    squat: 0,
+    abs: 0,
+  };
+
+  const res = await fetch("/api/fitnessData", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(defaultData),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to insert missing data for ${user} on ${date}`);
   }
 };
 
