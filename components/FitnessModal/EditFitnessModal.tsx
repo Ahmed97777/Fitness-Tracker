@@ -57,15 +57,6 @@ const EditFitnessModal: React.FC<EditFitnessModalProps> = ({
                 handleEditClick();
               }}
             >
-              <div className="form-control">
-                <label className="label">Name</label>
-                <input
-                  type="text"
-                  value={editData?.name || ""}
-                  onChange={(e) => handleChange("name", e.target.value)}
-                  className="input input-bordered w-full"
-                />
-              </div>
 
               <div className="form-control mt-4">
                 <label className="label">Push Up</label>
