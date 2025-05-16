@@ -66,8 +66,6 @@ interface HandleAddProps {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const users = ["Sameh", "Khorkhash", "Youssef"];
-
 export const handleAdd = async ({
   e,
   formData,
@@ -78,6 +76,16 @@ export const handleAdd = async ({
   setLoading(true);
 
   try {
+    // Fetch users from the database
+    const usersRes = await fetch("/api/usersData", {
+      method: "GET",
+    });
+    if (!usersRes.ok) {
+      throw new Error("Failed to fetch users data");
+    }
+    const users: { name: string }[] = await usersRes.json();
+    const userNames = users.map(user => user.name);
+
     // Fetch existing fitness data to get the latest date
     const res = await fetch("/api/fitnessData", {
       method: "GET",
@@ -88,13 +96,43 @@ export const handleAdd = async ({
 
     const existingData: FitnessData[] = await res.json();
 
+    if (existingData.length === 0) {
+      // If no existing data, just create today's data for the current user
+      const newFitnessData = await fetch("/api/fitnessData", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!newFitnessData.ok) {
+        throw new Error("Failed to add fitness data");
+      }
+
+      const newData = await newFitnessData.json();
+      toast.success("Fitness Data Added Successfully");
+
+      // Reset the form
+      const newDate = new Date().toISOString().substring(0, 10);
+      setFormData({
+        date: newDate,
+        name: "",
+        pushUp: 0,
+        plank: 0,
+        squat: 0,
+        abs: 0,
+      });
+      return;
+    }
+
     // Sort existing data by date (descending order) to get the latest date
     const latestDate = existingData
-      .map((item) => new Date(item.date)) // Convert to Date object
+      .map((item) => new Date(item.date))
       .sort((a, b) => b.getTime() - a.getTime())
       .shift()
       ?.toISOString()
-      ?.substring(0, 10); // Get the latest date
+      ?.substring(0, 10);
 
     if (!latestDate) {
       throw new Error("No existing data found.");
@@ -103,10 +141,10 @@ export const handleAdd = async ({
     // Check for missing dates between the latest date and the given date
     const missingDates = getMissingDates(latestDate, formData.date);
 
-    // Insert default 0 data for each date with provided const users
+    // Insert default 0 data for each date with provided users
     for (const missingDate of missingDates) {
-      for (const user of users) {
-        await insertMissingData(missingDate, user);
+      for (const userName of userNames) {
+        await insertMissingData(missingDate, userName);
       }
     }
 
